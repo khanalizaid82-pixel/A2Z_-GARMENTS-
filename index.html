@@ -3,12 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="robots" content="noindex, nofollow">
     <title>A2Z GARMENT - Latest Collection</title>
+    
+    <!-- Firebase CDN (Compat Versions) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
         
-        /* Premium Background */
         body { 
             background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
             min-height: 100vh;
@@ -17,7 +20,6 @@
             background-attachment: fixed;
         }
         
-        /* Header */
         header { 
             background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); 
             color: white; 
@@ -27,12 +29,10 @@
             top: 0; 
             z-index: 1000; 
             box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-            backdrop-filter: blur(4px);
         }
-        header h1 { font-size: 28px; color: #ffcc00; letter-spacing: 2px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        header h1 { font-size: 28px; color: #ffcc00; letter-spacing: 2px; }
         header p { font-size: 13px; opacity: 0.95; margin-top: 5px; }
         
-        /* Shop Info Banner */
         .shop-info { 
             background: rgba(255, 255, 255, 0.95); 
             margin: 15px; 
@@ -42,18 +42,14 @@
             text-align: center; 
             border-left: 4px solid #ffcc00; 
             box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-            backdrop-filter: blur(10px);
         }
         
-        /* Admin Panel */
         .admin-panel { 
             background: rgba(255, 255, 255, 0.98); 
             margin: 15px; 
             padding: 15px; 
             border-radius: 12px; 
             box-shadow: 0 8px 24px rgba(0,0,0,0.15); 
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            backdrop-filter: blur(10px);
         }
         .admin-panel h3 { 
             margin-bottom: 10px; 
@@ -61,7 +57,6 @@
             font-size: 16px; 
             border-bottom: 2px solid #ffcc00; 
             display: inline-block; 
-            padding-bottom: 3px; 
         }
         .form-group { margin-bottom: 10px; }
         .form-group input, .form-group select { 
@@ -70,12 +65,6 @@
             border: 2px solid #e0e0e0; 
             border-radius: 8px; 
             font-size: 14px;
-            transition: 0.3s;
-        }
-        .form-group input:focus, .form-group select:focus { 
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
         .btn-add { 
             background: linear-gradient(135deg, #27ae60, #229954); 
@@ -87,20 +76,9 @@
             width: 100%; 
             font-weight: bold; 
             font-size: 15px; 
-            transition: 0.3s;
-            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
         }
-        .btn-add:hover { 
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
-        }
-        .btn-add:disabled { 
-            background: #95a5a6; 
-            cursor: not-allowed;
-            transform: none;
-        }
+        .btn-add:disabled { background: #95a5a6; cursor: not-allowed; }
 
-        /* Filter Tabs */
         .categories { 
             display: flex; 
             overflow-x: auto; 
@@ -117,21 +95,13 @@
             font-weight: 600; 
             cursor: pointer; 
             font-size: 13px; 
-            transition: 0.3s;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        .cat-btn:hover { 
-            background: rgba(255, 255, 255, 1);
-            transform: translateY(-2px);
         }
         .cat-btn.active { 
             background: linear-gradient(135deg, #203a43, #2c5364); 
             color: white;
             border-color: #ffcc00;
-            box-shadow: 0 4px 15px rgba(32, 58, 67, 0.3);
         }
 
-        /* Product Cards */
         .product-grid { 
             display: grid; 
             grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
@@ -147,35 +117,11 @@
             flex-direction: column; 
             justify-content: space-between; 
             position: relative;
-            transition: 0.3s;
-            backdrop-filter: blur(10px);
         }
-        .product-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 24px rgba(0,0,0,0.2);
-        }
-        .product-card img { 
-            width: 100%; 
-            height: 180px; 
-            object-fit: cover;
-            transition: 0.3s;
-        }
-        .product-card:hover img {
-            transform: scale(1.05);
-        }
+        .product-card img { width: 100%; height: 180px; object-fit: cover; }
         .product-details { padding: 10px; }
-        .product-title { 
-            font-size: 14px; 
-            font-weight: bold; 
-            color: #222; 
-            margin-bottom: 5px; 
-            word-wrap: break-word; 
-        }
-        .product-price { 
-            color: #e67e22; 
-            font-weight: bold; 
-            font-size: 15px; 
-        }
+        .product-title { font-size: 14px; font-weight: bold; color: #222; margin-bottom: 5px; }
+        .product-price { color: #e67e22; font-weight: bold; font-size: 15px; }
         .btn-order { 
             display: block; 
             width: 100%; 
@@ -188,12 +134,6 @@
             border-radius: 6px; 
             margin-top: 8px; 
             font-size: 13px; 
-            transition: 0.3s;
-            box-shadow: 0 4px 10px rgba(37, 211, 102, 0.2);
-        }
-        .btn-order:hover { 
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(37, 211, 102, 0.4);
         }
         .btn-delete { 
             position: absolute; 
@@ -208,15 +148,8 @@
             cursor: pointer; 
             font-weight: bold; 
             font-size: 18px; 
-            transition: 0.3s;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        }
-        .btn-delete:hover { 
-            background: rgba(255, 0, 0, 1);
-            transform: scale(1.1) rotate(90deg);
         }
 
-        /* Floating Contact Bar */
         .floating-contacts { 
             position: fixed; 
             bottom: 0; 
@@ -228,7 +161,6 @@
             padding: 8px 10px; 
             box-shadow: 0 -4px 20px rgba(0,0,0,0.15); 
             z-index: 1000;
-            backdrop-filter: blur(10px);
         }
         .action-btn { 
             flex: 1; 
@@ -240,21 +172,11 @@
             color: white; 
             font-weight: bold; 
             font-size: 13px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 5px; 
-            transition: 0.3s;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        .action-btn:hover {
-            transform: translateY(-3px);
         }
         .btn-call { background: linear-gradient(135deg, #007bff, #0056b3); }
         .btn-wa { background: linear-gradient(135deg, #25D366, #1fa856); }
         .btn-location { background: linear-gradient(135deg, #dc3545, #bb2d3b); }
 
-        /* Message Box */
         .message { 
             padding: 12px; 
             margin: 10px 15px; 
@@ -262,56 +184,24 @@
             text-align: center; 
             font-weight: bold; 
             display: none;
-            animation: slideIn 0.3s ease;
         }
-        .message.success { 
-            background: #d4edda; 
-            color: #155724; 
-            display: block;
-            border: 2px solid #28a745;
-        }
-        .message.error { 
-            background: #f8d7da; 
-            color: #721c24; 
-            display: block;
-            border: 2px solid #dc3545;
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateY(-20px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        /* Responsive */
-        @media (max-width: 600px) {
-            header h1 { font-size: 22px; }
-            .product-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
-            .floating-contacts { padding: 6px 5px; }
-            .action-btn { font-size: 12px; padding: 8px; }
-        }
+        .message.success { background: #d4edda; color: #155724; display: block; border: 2px solid #28a745; }
+        .message.error { background: #f8d7da; color: #721c24; display: block; border: 2px solid #dc3545; }
     </style>
 </head>
 <body>
 
-    <!-- Header Section -->
     <header>
         <h1>A2Z GARMENT</h1>
         <p>Not just fashion, it's a feeling!</p>
     </header>
 
-    <!-- Address & Owner Info -->
     <div class="shop-info">
         <strong>Pro.: Samar Khan</strong> | 📍 Malhani Bazar, Aflepur<br>
         📞 <strong>Mobile:</strong> 8400602425
     </div>
 
-    <!-- Admin Upload Section -->
+    <!-- Admin Section -->
     <div class="admin-panel">
         <h3>+ Add New Stock (Admin)</h3>
         <div id="messageBox" class="message"></div>
@@ -346,10 +236,8 @@
         <button class="cat-btn" data-category="Lowers" onclick="filterCategory(event)">Lowers</button>
     </div>
 
-    <!-- Products Showcase Grid -->
     <div class="product-grid" id="productGrid"></div>
 
-    <!-- Bottom Action Bar -->
     <div class="floating-contacts">
         <a href="tel:8400602425" class="action-btn btn-call">📞 Call</a>
         <a href="https://wa.me/918400602425?text=Hello,%20I%20want%20to%20inquire%20about%20A2Z%20Garment%20products." class="action-btn btn-wa">💬 WhatsApp</a>
@@ -357,48 +245,41 @@
     </div>
 
     <script>
+        // Tumhare Project ki Real Firebase Keys[span_1](start_span)[span_1](end_span)
+        const firebaseConfig = {
+            authDomain: "a2z-collection.firebaseapp.com",
+            projectId: "a2z-collection",
+            storageBucket: "a2z-collection.appspot.com",
+            messagingSenderId: "153903317291",
+            appId: "1:153903317291:web:b262f55928646bcf3a1e16"
+        };
+
+        // Complete Firebase Initialization
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
         const PHONE = "918400602425";
-        const MAX_IMAGE_SIZE = 500 * 1024;
-        const STORAGE_KEY = 'a2z_products';
         let products = [];
         let currentFilter = 'all';
 
         function init() {
-            loadProducts();
-            renderProducts();
-        }
-
-        function loadProducts() {
-            try {
-                const stored = localStorage.getItem(STORAGE_KEY);
-                products = stored ? JSON.parse(stored) : [];
-            } catch (error) {
-                console.error('Error loading products:', error);
-                showMessage('Error loading products', 'error');
+            // Firestore Live Realtime Sync
+            db.collection("products").orderBy("addedAt", "desc").onSnapshot((snapshot) => {
                 products = [];
-            }
-        }
-
-        function saveProducts() {
-            try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
-            } catch (error) {
-                if (error.name === 'QuotaExceededError') {
-                    showMessage('Storage full! Delete some products first.', 'error');
-                } else {
-                    showMessage('Error saving products', 'error');
-                }
-                console.error('Storage error:', error);
-            }
+                snapshot.forEach((doc) => {
+                    products.push({ id: doc.id, ...doc.data() });
+                });
+                renderProducts();
+            }, (error) => {
+                console.error("Firestore Error:", error);
+            });
         }
 
         function showMessage(text, type = 'success') {
             const messageBox = document.getElementById('messageBox');
             messageBox.textContent = text;
             messageBox.className = `message ${type}`;
-            setTimeout(() => {
-                messageBox.className = 'message';
-            }, 3000);
+            setTimeout(() => { messageBox.className = 'message'; }, 3000);
         }
 
         function renderProducts() {
@@ -410,19 +291,18 @@
                 : products.filter(p => p.category === currentFilter);
 
             if (filtered.length === 0) {
-                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 20px; color: #666; font-weight: 500;">No products available in this category.</p>';
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 20px; color: #fff; font-weight: 500;">No products available in this category.</p>';
                 return;
             }
 
             filtered.forEach((p) => {
-                const actualIndex = products.indexOf(p);
                 const waMessage = `Hello A2Z Garment, I want to order this item:\n*Name:* ${p.name}\n*Price:* ${p.price}`;
                 const waLink = `https://wa.me/${PHONE}?text=${encodeURIComponent(waMessage)}`;
 
                 grid.innerHTML += `
                     <div class="product-card">
-                        <button class="btn-delete" onclick="deleteProduct(${actualIndex})" title="Delete product">×</button>
-                        <img src="${p.image}" alt="${p.name}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22160%22 height=%22180%22%3E%3Crect fill=%22%23ddd%22 width=%22160%22 height=%22180%22/%3E%3C/svg%3E'">
+                        <button class="btn-delete" onclick="deleteProduct('${p.id}')" title="Delete product">×</button>
+                        <img src="${p.image}" alt="${p.name}">
                         <div class="product-details">
                             <div class="product-title">${escapeHTML(p.name)}</div>
                             <div class="product-price">${escapeHTML(p.price)}</div>
@@ -446,99 +326,54 @@
             const imgInput = document.getElementById('prodImage');
             const btn = document.getElementById('uploadBtn');
 
-            if (!name) {
-                showMessage('Please enter item name!', 'error');
-                return;
-            }
-            if (!price) {
-                showMessage('Please enter price!', 'error');
-                return;
-            }
-            if (imgInput.files.length === 0) {
-                showMessage('Please select an image!', 'error');
+            if (!name || !price || imgInput.files.length === 0) {
+                showMessage('Please fill all fields and select an image!', 'error');
                 return;
             }
 
             const file = imgInput.files[0];
-
-            if (!file.type.startsWith('image/')) {
-                showMessage('Please select a valid image file!', 'error');
-                return;
-            }
-
-            if (file.size > MAX_IMAGE_SIZE) {
-                showMessage('Image size must be less than 500KB!', 'error');
-                return;
-            }
-
             btn.disabled = true;
             btn.textContent = 'Uploading...';
 
             const reader = new FileReader();
-            
             reader.onload = function(e) {
-                try {
-                    const newProduct = {
-                        name: name,
-                        price: price,
-                        category: category,
-                        image: e.target.result,
-                        addedAt: new Date().toISOString()
-                    };
-                    
-                    products.push(newProduct);
-                    saveProducts();
-                    renderProducts();
-                    showMessage('Product added successfully! ✓', 'success');
-                    
+                db.collection("products").add({
+                    name: name,
+                    price: price,
+                    category: category,
+                    image: e.target.result,
+                    addedAt: new Date().toISOString()
+                }).then(() => {
+                    showMessage('Product added live for everyone! ✓', 'success');
                     document.getElementById('prodName').value = '';
                     document.getElementById('prodPrice').value = '';
                     imgInput.value = '';
-                } catch (error) {
-                    showMessage('Error adding product!', 'error');
-                    console.error(error);
-                } finally {
+                }).catch((err) => {
+                    showMessage('Error adding product to cloud!', 'error');
+                    console.error(err);
+                }).finally(() => {
                     btn.disabled = false;
                     btn.textContent = 'Upload Item';
-                }
+                });
             };
-
-            reader.onerror = function() {
-                showMessage('Error reading image file!', 'error');
-                btn.disabled = false;
-                btn.textContent = 'Upload Item';
-            };
-
             reader.readAsDataURL(file);
         }
 
-        function deleteProduct(index) {
-            if (index < 0 || index >= products.length) {
-                showMessage('Product not found!', 'error');
-                return;
-            }
-
-            if (confirm(`Delete "${products[index].name}"?`)) {
-                products.splice(index, 1);
-                saveProducts();
-                renderProducts();
-                showMessage('Product deleted! ✓', 'success');
+        function deleteProduct(docId) {
+            if (confirm("Delete this product for everyone?")) {
+                db.collection("products").doc(docId).delete().then(() => {
+                    showMessage('Product deleted! ✓', 'success');
+                });
             }
         }
 
         function filterCategory(event) {
             event.preventDefault();
-            
             const category = event.target.getAttribute('data-category');
             if (!category) return;
-
             currentFilter = category;
-
-            document.querySelectorAll('.cat-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
+            document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
-
             renderProducts();
         }
 
